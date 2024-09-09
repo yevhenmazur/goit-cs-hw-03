@@ -13,7 +13,7 @@ create_tables_commands = [
     """
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
+        name VARCHAR(100) NOT NULL UNIQUE,
         email VARCHAR(100) NOT NULL UNIQUE
     )
     """,
@@ -30,8 +30,8 @@ create_tables_commands = [
         description TEXT,
         user_id INTEGER NOT NULL,
         status_id INTEGER NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (status_id) REFERENCES status(id)
+        CONSTRAINT tasks_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        CONSTRAINT Task_status_id_fkey FOREIGN KEY (status_id) REFERENCES status(id)
     )
     """
 ]

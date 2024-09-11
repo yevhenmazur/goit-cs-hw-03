@@ -4,7 +4,9 @@
 from pymongo import MongoClient, errors
 from pymongo.server_api import ServerApi
 
+
 def populate_db():
+    ''' Наповнює базу зразковими даними щодо котів '''
     try:
         client = MongoClient(
             "mongodb://root:mongo_pass@localhost",
@@ -75,12 +77,13 @@ def populate_db():
 
     except errors.ServerSelectionTimeoutError:
         print("Не вдалося підключитися до MongoDB: сервер недоступний.")
-    
+
     except errors.OperationFailure:
         print("Помилка авторизації: неправильні ім'я користувача або пароль.")
-    
+
     except Exception as e:
         print(f"Сталася помилка: {e}")
+
 
 if __name__ == "__main__":
     populate_db()

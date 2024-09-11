@@ -7,9 +7,9 @@ Cкрипт, який використовує бібліотеку PyMongo дл
 '''
 import argparse
 import sys
+from functools import wraps
 from pymongo import MongoClient, errors
 from pymongo.server_api import ServerApi
-from functools import wraps
 from populate_db import populate_db
 
 try:
@@ -18,11 +18,11 @@ try:
         server_api=ServerApi('1'),
         serverSelectionTimeoutMS=5000
     )
-    
+
     client.admin.command('ping')
     # print("Підключення до MongoDB успішне")
 
-    db = client.book  
+    db = client.book
 
 except errors.ServerSelectionTimeoutError:
     print("Не вдалося підключитися до MongoDB: сервер недоступний.")
@@ -74,8 +74,8 @@ def check_cat_exists(func):
         cat = db.cats.find_one({"name": name})
         if not cat:
             print(f"Кіт з ім'ям {name} не знайдений у базі")
-            return None 
-        return func(name, *args, **kwargs)  
+            return None
+        return func(name, *args, **kwargs)
     return wrapper
 
 
@@ -83,7 +83,8 @@ def show_all():
     ''' Вертає список всіх котів '''
     res = db.cats.find({})
     return res
-        
+
+
 @check_cat_exists
 def show(name: str) -> list:
     ''' Знаходить кота за іменем '''
@@ -91,10 +92,10 @@ def show(name: str) -> list:
     cat = db.cats.find_one({"name": name})
     res.append(cat)
     return res
-    
+
 
 @check_cat_exists
-def  update_age(name: str, new_age: int) -> str:
+def update_age(name: str, new_age: int) -> str:
     ''' Оновлює вік кота за його ім'ям '''
     cat = db.cats.find_one({"name": name})
     old_age = cat.get('age')
@@ -113,15 +114,18 @@ def add_feature(name: str, feature: str) -> str:
     msg = f"Для кота {name} додано особливість {feature}"
     return msg
 
+
 @check_cat_exists
 def delete_cat(name: str) -> str:
+    ''' Видаляє кота за іменем '''
     db.cats.delete_one({"name": name})
     msg = f"Кота на ім'я {name} видалено з бази"
     return msg
 
+
 def delete_all_cats() -> str:
     ''' Видаляє всіх котів з бази '''
-    result = db.cats.delete_many({})  
+    result = db.cats.delete_many({})
     msg = f"Видалено {result.deleted_count} котів"
     return msg
 
@@ -139,12 +143,12 @@ def print_table(cats: list):
         for cat in cats:
             name = cat.get('name', 'N/A')
             age = cat.get('age', 'N/A')
-            features = ", ".join(cat.get('features', [])) 
+            features = ", ".join(cat.get('features', []))
             print(f"{name:<15} | {age:<5} | {features}")
 
 
 def main():
-
+    ''' Викликає всі інші функції, в залежності від аргументів командного рядка '''
 
     args = parse_args()
 
@@ -171,6 +175,7 @@ def main():
     if args.populate:
         populate_db()
         # print("База наповнена зразками котів")
+
 
 if __name__ == "__main__":
     main()
